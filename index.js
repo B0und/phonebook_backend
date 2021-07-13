@@ -1,18 +1,20 @@
 const { response, json } = require("express");
 var morgan = require("morgan");
 const express = require("express");
-var uuid = require("node-uuid");
-
-
+const cors = require("cors");
 
 const app = express();
+app.use(cors());
+app.use(express.static("build"));
 
-morgan.token('body', (req, res) => JSON.stringify(req.body));
-app.use(morgan(':method :url :status :response-time ms - :res[content-length] :body - :req[content-length]'));
+morgan.token("body", (req, res) => JSON.stringify(req.body));
+app.use(
+  morgan(
+    ":method :url :status :response-time ms - :res[content-length] :body - :req[content-length]"
+  )
+);
 
 app.use(express.json());
-
-
 
 let persons = [
   {
@@ -103,7 +105,7 @@ app.get("/info", (request, response) => {
   response.send(`<p>${message}</p> <p>${new Date()}</p> `);
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
