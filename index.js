@@ -1,7 +1,18 @@
 const { response, json } = require("express");
+var morgan = require("morgan");
 const express = require("express");
+var uuid = require("node-uuid");
+
+
+
 const app = express();
+
+morgan.token('body', (req, res) => JSON.stringify(req.body));
+app.use(morgan(':method :url :status :response-time ms - :res[content-length] :body - :req[content-length]'));
+
 app.use(express.json());
+
+
 
 let persons = [
   {
@@ -35,7 +46,7 @@ app.get("/api/persons", (request, response) => {
 });
 
 app.post("/api/persons", (request, response) => {
-  console.log(request.body); 
+  console.log(request.body);
 
   const body = request.body;
   console.log(body);
@@ -45,7 +56,7 @@ app.post("/api/persons", (request, response) => {
       error: "content missing",
     });
   }
-  if (persons.find(person => person.name === body.name)) {
+  if (persons.find((person) => person.name === body.name)) {
     return response.status(400).json({
       error: "name must be unique",
     });
