@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 var uniqueValidator = require("mongoose-unique-validator");
 
-const url = process.env.MONGODB_URI;
+const url = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ps8p8.mongodb.net/phonebook?retryWrites=true&w=majority`
 
 console.log("connecting to", url);
 
