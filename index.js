@@ -21,33 +21,20 @@ app.get(["/api/persons", "/api/contacts"], (request, response) => {
   });
 });
 
-app.post(["/api/persons", "/api/contacts"], (request, response) => {
-  console.log(request.body);
-
+app.post(["/api/persons", "/api/contacts"], (request, response, next) => {
   const body = request.body;
-  console.log(body);
-
-  // body must have name and number params
-  if (!body.name || !body.number) {
-    return response.status(400).json({
-      error: "content missing",
-    });
-  }
   const contact = new Contact({
     name: body.name,
     number: body.number,
   });
 
-  Contact.findOneAndUpdate(
-    { name: contact.name },
-    { number: contact.number },
-    { upsert: true },
-    function (err, doc) {
-      if (err) return res.send(500, { error: err });
-      return response.send("Succesfully saved.");
-    }
-  ).catch((error) => next(error));
+  contact.save()
+    .then(savedContact => {
+      response.json(savedContact.toJSON())
+    })
+    .catch(error => next(error))
 });
+
 
 app.get(
   ["/api/persons/:id", "/api/contacts/:id"],
@@ -81,20 +68,19 @@ app.get("/info", (request, response) => {
   });
 });
 
-
-
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
 
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message });
   }
 
   next(error);
 };
 // handler of requests with result to errors
 app.use(errorHandler);
-
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

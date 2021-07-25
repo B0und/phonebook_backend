@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
+var uniqueValidator = require("mongoose-unique-validator");
 
 const url = process.env.MONGODB_URI;
 
 console.log("connecting to", url);
-
 
 mongoose
   .connect(url, {
@@ -19,12 +19,24 @@ mongoose
     console.log("error connecting to MongoDB:", error.message);
   });
 
+function phoneLengthValidator(val) {
+  const numberOfDigits = (val.match(/\d/g) || []).length;
+  return numberOfDigits > 8;
+}
 
 const phonebookSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minLength: 3,
+    required: true,
+    unique: true,
+  },
+  number: {
+    type: String,
+    validate: phoneLengthValidator,
+    required: true,
+  },
 });
-
 
 phonebookSchema.set("toJSON", {
   transform: (document, returnedObject) => {
@@ -33,5 +45,7 @@ phonebookSchema.set("toJSON", {
     delete returnedObject.__v;
   },
 });
+
+phonebookSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model("Contact", phonebookSchema);
