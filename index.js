@@ -65,7 +65,7 @@ app.put(["/api/persons/:id", "/api/contacts/:id"], (request, response) => {
   Contact.findByIdAndUpdate(
     { _id: request.params.id },
     { number: request.body.number },
-    {},
+    { runValidators: true, context: 'query'},
     function (err) {
       if (!err) {
         response.status(204).end();
