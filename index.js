@@ -28,13 +28,13 @@ app.post(["/api/persons", "/api/contacts"], (request, response, next) => {
     number: body.number,
   });
 
-  contact.save()
-    .then(savedContact => {
-      response.json(savedContact.toJSON())
+  contact
+    .save()
+    .then((savedContact) => {
+      response.json(savedContact.toJSON());
     })
-    .catch(error => next(error))
+    .catch((error) => next(error));
 });
-
 
 app.get(
   ["/api/persons/:id", "/api/contacts/:id"],
@@ -61,6 +61,21 @@ app.delete(["/api/persons/:id", "/api/contacts/:id"], (request, response) => {
   });
 });
 
+app.put(["/api/persons/:id", "/api/contacts/:id"], (request, response) => {
+  Contact.findByIdAndUpdate(
+    { _id: request.params.id },
+    { number: request.body.number },
+    {},
+    function (err) {
+      if (!err) {
+        response.status(204).end();
+      } else {
+        response.status(404).end();
+      }
+    }
+  );
+});
+
 app.get("/info", (request, response) => {
   Contact.find({}).then((contact) => {
     const message = `Phonebook has info for ${contact.length} people`;
@@ -79,6 +94,13 @@ const errorHandler = (error, request, response, next) => {
 
   next(error);
 };
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(unknownEndpoint);
+
 // handler of requests with result to errors
 app.use(errorHandler);
 
